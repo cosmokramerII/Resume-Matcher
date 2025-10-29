@@ -42,14 +42,15 @@ make run-dev
 - **PowerShell** 5.1 or later
 - **Node.js** ≥ v18 (includes `npm`)
 - **Python** ≥ 3.8 (`python3`, `pip3`)
-- **winget** (recommended for Ollama installation)
+- **LM Studio** (download from [https://lmstudio.ai/](https://lmstudio.ai/))
 - **uv** (will be auto-installed by setup.ps1 if missing)
 
 ### Linux/macOS
 - **Bash** 4.4 or higher
 - **Node.js** ≥ v18 (includes `npm`)
 - **Python** ≥ 3.8 (`python3`, `pip3`)
-- **curl** (for installing uv & Ollama)
+- **LM Studio** (download from [https://lmstudio.ai/](https://lmstudio.ai/))
+- **curl** (for installing uv)
 - **make** (for Makefile integration)
 
 ### Installing Prerequisites
@@ -68,7 +69,7 @@ winget install Python.Python.3.12
 **Or download manually from official sites:**
 - **Node.js**: Download from [https://nodejs.org/](https://nodejs.org/) (LTS version recommended)
 - **Python**: Download from [https://www.python.org/downloads/](https://www.python.org/downloads/) (v3.8+ required)
-- **Ollama**: Script will attempt to automatically install Ollama if it fails. Download from [https://ollama.com/download/windows](https://ollama.com/download/windows)
+- **LM Studio**: Download from [https://lmstudio.ai/](https://lmstudio.ai/) (available for Windows, macOS, and Linux)
 
 **On macOS**, you can install missing tools via Homebrew:
 
@@ -94,6 +95,42 @@ The project uses `.env` files at two levels:
 
 You can customize any variables in these files before or after bootstrapping.
 
+### LM Studio Configuration
+
+To use LM Studio with Resume Matcher, you need to configure the backend to use LM Studio's OpenAI-compatible API:
+
+1. **Open LM Studio** and download a compatible model:
+   - Recommended: `gemma-2-4b-it`, `phi-3.5-mini-instruct`, or similar lightweight models
+   - Go to the "Search" tab, find your model, and download it
+
+2. **Start the Local Server**:
+   - Navigate to the "Local Server" tab in LM Studio
+   - Select your downloaded model
+   - Click "Start Server" (default port is `1234`)
+
+3. **Configure Backend Environment Variables** in `apps/backend/.env`:
+   ```env
+   LLM_PROVIDER="llama_index.llms.openai_like.OpenAILike"
+   LLM_BASE_URL="http://localhost:1234/v1"
+   LL_MODEL="local-model"
+   # LM Studio doesn't require an API key for local server
+   LLM_API_KEY="not-needed"
+   ```
+
+4. **For embeddings**, you can use LM Studio if it supports embedding models, or use an alternative provider like OpenAI:
+   ```env
+   # Option 1: Use OpenAI for embeddings (requires API key)
+   EMBEDDING_PROVIDER="openai"
+   EMBEDDING_API_KEY="your-openai-api-key"
+   EMBEDDING_MODEL="text-embedding-3-small"
+   
+   # Option 2: Use LM Studio for embeddings (if supported)
+   EMBEDDING_PROVIDER="llama_index.embeddings.openai_like.OpenAILikeEmbedding"
+   EMBEDDING_BASE_URL="http://localhost:1234/v1"
+   EMBEDDING_MODEL="local-embedding-model"
+   EMBEDDING_API_KEY="not-needed"
+   ```
+
 ### Common Variables
 
 | Name                      | Description                     | Default                        |
@@ -103,6 +140,9 @@ You can customize any variables in these files before or after bootstrapping.
 | `PYTHONDONTWRITEBYTECODE` | Disable Python bytecode files   | `1`                            |
 | `ASYNC_DATABASE_URL`      | Backend async db connection URI | `sqlite+aiosqlite:///./app.db` |
 | `NEXT_PUBLIC_API_URL`     | Frontend proxy to backend URI   | `http://localhost:8000`        |
+| `LLM_PROVIDER`            | LLM provider to use             | `llama_index.llms.openai_like.OpenAILike` (for LM Studio) |
+| `LLM_BASE_URL`            | LM Studio API base URL          | `http://localhost:1234/v1`     |
+| `LL_MODEL`                | Model name in LM Studio         | `local-model`                  |
 
 > **Note:** `PYTHONDONTWRITEBYTECODE=1` is exported by `setup.sh` to prevent `.pyc` files.
 
@@ -112,14 +152,15 @@ You can customize any variables in these files before or after bootstrapping.
 
  Note: Before You Run `setup.sh`
  
- Make sure that [Ollama](https://ollama.com/) is not only installed but also running.
- You can start the Ollama server manually by running:
-
- ```bash
- ollama serve
- ```
-
- If Ollama is not running, the script may fail to pull the required model (`gemma3:4b`).
+ Make sure that [LM Studio](https://lmstudio.ai/) is installed and you have:
+ 1. Downloaded a compatible model (e.g., `gemma-2-4b-it` or `phi-3.5-mini`)
+ 2. Started the local server in LM Studio (typically runs on `http://localhost:1234`)
+ 
+ To start the LM Studio server:
+ - Open LM Studio
+ - Navigate to the "Local Server" tab
+ - Click "Start Server"
+ - Ensure the server is running before proceeding with setup
  
 ### Windows Installation
 
@@ -139,11 +180,11 @@ You can customize any variables in these files before or after bootstrapping.
    This will:
 
    - Verify/install prerequisites (`node`, `npm`, `python3`, `pip3`, `uv`)
-   - Install Ollama via winget (if not present)
-   - Pull the `gemma3:4b` model via Ollama
    - Bootstrap root & backend `.env` files
    - Install Node.js deps (`npm ci`) at root and frontend
    - Sync Python deps in `apps/backend` via `uv sync`
+   
+   **Note:** The setup script no longer installs LM Studio automatically. You must download and install it manually from [https://lmstudio.ai/](https://lmstudio.ai/)
 
 3. **(Optional) Start development**
 
@@ -181,11 +222,12 @@ You can customize any variables in these files before or after bootstrapping.
 
    This will:
 
-   - Verify/install prerequisites (`node`, `npm`, `python3`, `pip3`, `uv`, `ollama`)
-   - Pull the `gemma3:4b` model via Ollama
+   - Verify/install prerequisites (`node`, `npm`, `python3`, `pip3`, `uv`)
    - Bootstrap root & backend `.env` files
    - Install Node.js deps (`npm ci`) at root and frontend
    - Sync Python deps in `apps/backend` via `uv sync`
+   
+   **Note:** The setup script does not install LM Studio. You must download and install it manually from [https://lmstudio.ai/](https://lmstudio.ai/)
 
 4. **(Optional) Start development**
 
@@ -239,9 +281,11 @@ You can customize any variables in these files before or after bootstrapping.
 
   - Install App Installer from Microsoft Store or update Windows 10/11.
 
-- **`Ollama installation failed`**:
+- **`LM Studio not running`**:
 
-  - Download and install manually from [https://ollama.com/download/windows](https://ollama.com/download/windows).
+  - Ensure LM Studio is installed from [https://lmstudio.ai/](https://lmstudio.ai/)
+  - Start the local server in LM Studio before running the application
+  - Verify the server is accessible at `http://localhost:1234` (default port)
 
 - **`uv: command not found`** after installation:
 
@@ -257,9 +301,10 @@ You can customize any variables in these files before or after bootstrapping.
 
   - Ensure `~/.local/bin` is in your `$PATH`.
 
-- **`ollama: command not found`** on Linux:
+- **`Connection refused to LM Studio server`**:
 
-  - Verify the installer script ran, or install manually via package manager.
+  - Make sure LM Studio's local server is running (check the "Local Server" tab in LM Studio)
+  - Verify the correct port is configured in your backend `.env` file (`LLM_BASE_URL`)
 
 - **`npm ci` errors**:
   - Check your `package-lock.json` is in sync with `package.json`.

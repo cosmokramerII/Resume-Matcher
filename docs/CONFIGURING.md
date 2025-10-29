@@ -16,7 +16,7 @@ LLM_BASE_URL="url"
 LL_MODEL="modelID"
 EMBEDDING_PROVIDER="providerstring"
 EMBEDDING_API_KEY="key"
-EMBEDDING_BASE_URL=""
+EMBEDDING_BASE_URL="url"
 EMBEDDING_MODEL="modelID"
 ```
 
@@ -27,7 +27,71 @@ models are models that turn text into a series of numbers that can be
 compared by Resume-Matcher to find similarities. Both types of models
 are needed for Resume-Matcher to work.
 
-## "ollama" provider
+## "LM Studio" provider (Recommended for Local Use)
+
+LM Studio is a user-friendly desktop application that runs AI models locally
+with an OpenAI-compatible API. It's the recommended option for local deployment
+because it provides a GUI for model management and doesn't require command-line tools.
+
+### Setup Instructions:
+
+1. **Download and Install LM Studio**
+   - Visit [https://lmstudio.ai/](https://lmstudio.ai/)
+   - Download the version for your OS (Windows, macOS, or Linux)
+   - Install and launch LM Studio
+
+2. **Download a Model**
+   - In LM Studio, go to the "Search" tab
+   - Search for and download a compatible model, such as:
+     - `gemma-2-4b-it` (lightweight, good quality)
+     - `phi-3.5-mini-instruct` (very fast, low memory)
+     - `llama-3.2-3b-instruct` (balanced performance)
+   - Wait for the download to complete
+
+3. **Start the Local Server**
+   - Go to the "Local Server" tab in LM Studio
+   - Select your downloaded model from the dropdown
+   - Click "Start Server"
+   - The server typically runs on `http://localhost:1234`
+
+4. **Configure Resume-Matcher**
+   
+   In your `apps/backend/.env` file, set:
+   ```env
+   LLM_PROVIDER="llama_index.llms.openai_like.OpenAILike"
+   LLM_BASE_URL="http://localhost:1234/v1"
+   LL_MODEL="local-model"
+   LLM_API_KEY="not-needed"
+   ```
+
+5. **Configure Embeddings**
+   
+   LM Studio may not support all embedding models. You have two options:
+   
+   **Option A: Use OpenAI for embeddings** (requires API key with credits)
+   ```env
+   EMBEDDING_PROVIDER="openai"
+   EMBEDDING_API_KEY="your-openai-api-key"
+   EMBEDDING_MODEL="text-embedding-3-small"
+   ```
+   
+   **Option B: Use LM Studio for embeddings** (if your model supports it)
+   ```env
+   EMBEDDING_PROVIDER="llama_index.embeddings.openai_like.OpenAILikeEmbedding"
+   EMBEDDING_BASE_URL="http://localhost:1234/v1"
+   EMBEDDING_MODEL="local-embedding-model"
+   EMBEDDING_API_KEY="not-needed"
+   ```
+
+### Advantages of LM Studio:
+- User-friendly GUI interface
+- No command-line knowledge required
+- Easy model management and switching
+- Built-in model search and download
+- OpenAI-compatible API
+- Cross-platform (Windows, macOS, Linux)
+
+## "ollama" provider (Alternative Local Option)
 By default, Resume-Matcher uses an LLM_PROVIDER and EMBEDDING_PROVIDER
 of "ollama", which runs the LLM and embedding model on your local
 computer. In that case you will just need to set LL_MODEL and

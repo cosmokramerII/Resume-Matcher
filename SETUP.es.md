@@ -31,7 +31,8 @@ Antes de ejecutar `setup.sh`, asegúrate de tener:
   - **Bash** 4.4 o superior
   - **Node.js** ≥ v18 (incluye `npm`)
   - **Python** ≥ 3.8 (`python3`, `pip3`)
-  - **curl** (para instalar uv y Ollama)
+  - **LM Studio** (descarga desde [https://lmstudio.ai/](https://lmstudio.ai/))
+  - **curl** (para instalar uv)
   - **make** (para la integración con Makefile)
 
 En **macOS**, puedes instalar las herramientas que falten a través de Homebrew:
@@ -74,6 +75,18 @@ Puedes personalizar cualquier variable en estos archivos antes o después de la 
 
 ## 📦 Pasos de Instalación
 
+ Nota: Antes de Ejecutar `setup.sh`
+ 
+ Asegúrate de que [LM Studio](https://lmstudio.ai/) esté instalado y de que hayas:
+ 1. Descargado un modelo compatible (por ejemplo, `gemma-2-4b-it` o `phi-3.5-mini`)
+ 2. Iniciado el servidor local en LM Studio (generalmente se ejecuta en `http://localhost:1234`)
+ 
+ Para iniciar el servidor de LM Studio:
+ - Abre LM Studio
+ - Navega a la pestaña "Local Server"
+ - Haz clic en "Start Server"
+ - Asegúrate de que el servidor esté en funcionamiento antes de continuar con la configuración
+
 1.  **Clona el repositorio**
 
     ```bash
@@ -95,9 +108,12 @@ Puedes personalizar cualquier variable en estos archivos antes o después de la 
 
     Esto hará lo siguiente:
 
-      - Verificar/instalar prerrequisitos (`node`, `npm`, `python3`, `pip3`, `uv`, `ollama`).
-      - Descargar el modelo `gemma3:4b` a través de Ollama.
+      - Verificar/instalar prerrequisitos (`node`, `npm`, `python3`, `pip3`, `uv`).
       - Inicializar los archivos `.env` en la raíz y en el backend.
+      - Instalar las dependencias de Node.js (`npm ci`) en la raíz y en el frontend.
+      - Sincronizar las dependencias de Python en `apps/backend` mediante `uv sync`.
+    
+    **Nota:** El script de configuración no instala LM Studio. Debes descargarlo e instalarlo manualmente desde [https://lmstudio.ai/](https://lmstudio.ai/)
       - Instalar dependencias de Node.js (`npm ci`) en la raíz y en el frontend.
       - Sincronizar dependencias de Python en `apps/backend` a través de `uv sync`.
 
@@ -142,9 +158,16 @@ Puedes personalizar cualquier variable en estos archivos antes o después de la 
 
       - Asegúrate de que `~/.local/bin` esté en tu `$PATH`.
 
-  - **`ollama: command not found`** en Linux:
+  - **`LM Studio no está ejecutándose`**:
 
-      - Verifica que el script de instalación se haya ejecutado, o instálalo manualmente a través del gestor de paquetes.
+      - Asegúrate de que LM Studio esté instalado desde [https://lmstudio.ai/](https://lmstudio.ai/)
+      - Inicia el servidor local en LM Studio antes de ejecutar la aplicación
+      - Verifica que el servidor sea accesible en `http://localhost:1234` (puerto predeterminado)
+
+  - **`Rechazo de conexión al servidor de LM Studio`**:
+
+      - Asegúrate de que el servidor local de LM Studio esté en funcionamiento (verifica la pestaña "Local Server" en LM Studio)
+      - Verifica que el puerto correcto esté configurado en tu archivo `.env` del backend (`LLM_BASE_URL`)
 
   - **Errores de `npm ci`**:
 
