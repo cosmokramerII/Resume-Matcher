@@ -114,8 +114,6 @@ Puedes personalizar cualquier variable en estos archivos antes o después de la 
       - Sincronizar las dependencias de Python en `apps/backend` mediante `uv sync`.
     
     **Nota:** El script de configuración no instala LM Studio. Debes descargarlo e instalarlo manualmente desde [https://lmstudio.ai/](https://lmstudio.ai/)
-      - Instalar dependencias de Node.js (`npm ci`) en la raíz y en el frontend.
-      - Sincronizar dependencias de Python en `apps/backend` a través de `uv sync`.
 
 4.  **(Opcional) Iniciar el desarrollo**
 
